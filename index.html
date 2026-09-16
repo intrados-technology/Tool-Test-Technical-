@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Tool Test – Freshers – Intrados Designs</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="site-header" role="banner">
+  <div class="header-inner">
+
+    <!-- Candidate identity — top-left, populated from URL query
+         params (?ref=&name=). Hidden if absent. -->
+    <div class="candidate-corner" id="candidate-corner" style="display:none;">
+      <span class="candidate-corner-name" id="candidate-corner-name"></span>
+      <span class="candidate-corner-ref" id="candidate-corner-ref"></span>
+    </div>
+
+    <div class="logo-lockup" aria-label="Intrados Designs">
+      <img src="https://drive.google.com/thumbnail?id=15vrGO2Vyw49k9AzooJ2wT9TMJ8rXjgJm&sz=w400" alt="Intrados Designs" class="logo-image" />
+    </div>
+
+  </div>
+</header>
+
+
+<main class="page-wrapper" role="main">
+
+  <!-- ============================================================
+       RULES MODAL — different from other rounds: explicitly explains
+       there are NO screen/tab/webcam restrictions this time, since
+       candidates need their tools and reference material freely.
+       ============================================================ -->
+  <div class="modal-overlay open" id="rules-modal" role="dialog" aria-modal="true">
+    <div class="modal-box" style="max-width:560px; text-align:left;">
+      <h3 class="modal-title" style="text-align:center;">Before You Begin — Round 3: Tool Test</h3>
+      <div class="modal-body">
+        <ul style="margin:16px 0; padding-left:20px; line-height:1.8;">
+          <li><strong>You have 2 hours once you click Begin.</strong> The timer cannot be paused, and the session ends automatically when time runs out.</li>
+          <li><strong>No restrictions on tabs, windows, or software</strong> — feel free to use multiple monitors, switch applications, and use your usual tools freely.</li>
+          <li><strong>No webcam recording for this round.</strong></li>
+          <li><strong>Input files and the question paper will be provided via a Google Drive link</strong> once you begin.</li>
+          <li><strong>Submit your completed work separately</strong> (email / WeTransfer / as instructed) — this page does not accept file uploads. Make sure you send your work before the 2-hour window closes.</li>
+          <li><strong>You get one attempt only.</strong></li>
+        </ul>
+        <p style="margin:0;">By clicking below, you confirm you understand and agree to these conditions.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-confirm" id="btn-rules-understood" type="button">I Understand & Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       NOT ELIGIBLE MODAL
+       ============================================================ -->
+  <div class="modal-overlay" id="not-eligible-modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-icon" aria-hidden="true">⛔</div>
+      <h3 class="modal-title">Not Eligible</h3>
+      <p class="modal-body" id="not-eligible-desc">You are not eligible for this test.</p>
+      <div class="modal-actions">
+        <button class="btn-modal-confirm" id="btn-not-eligible-ok" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────────────────────────
+       SECTION 1: VERIFICATION
+       ────────────────────────────────────────────────────────── -->
+  <section id="registration-section" aria-label="Candidate Verification">
+    <div class="card">
+      <div class="card-header">
+        <div class="reg-intro">
+          <span class="section-badge">🛠 Round 3: Tool Test — Freshers</span>
+          <h1 class="reg-title">Verify Your Reference ID</h1>
+          <p class="reg-sub">Enter the Reference ID from your approved application to begin.</p>
+          <div class="assessment-meta">
+            <span class="meta-pill"><span class="icon">⏱</span> 2 Hours</span>
+            <span class="meta-pill"><span class="icon">📁</span> File-Based Task</span>
+            <span class="meta-pill"><span class="icon">🔓</span> No Restrictions</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label" for="field-refid">Reference ID <span class="req" aria-hidden="true">*</span></label>
+            <div class="refid-input-row">
+              <input type="text" id="field-refid" class="form-input" autocomplete="off" aria-required="true" />
+              <button id="btn-verify" class="btn-verify" type="button">Verify</button>
+            </div>
+            <span class="field-error" id="err-refid" role="alert" aria-live="polite"></span>
+            <p class="refid-hint">Use the Reference ID from your approved application. Your details will be pulled in automatically.</p>
+          </div>
+
+          <div id="candidate-summary" class="candidate-summary" style="display:none;" aria-live="polite">
+            <div class="summary-header">
+              <span class="summary-check" aria-hidden="true">✓</span>
+              <span>Candidate Verified</span>
+            </div>
+            <div class="summary-row"><span class="summary-label">Name</span><span class="summary-value" id="summary-name"></span></div>
+            <p class="summary-note">Not you? Double-check the Reference ID above and verify again.</p>
+          </div>
+
+          <button id="btn-start" class="btn-start" type="button" disabled>
+            <span>Begin Tool Test</span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SECTION 2: IN PROGRESS
+       ────────────────────────────────────────────────────────── -->
+  <section id="assessment-section" aria-label="Tool Test In Progress" style="display:none;">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="big-stopwatch-wrap">
+          <div class="big-stopwatch" id="big-stopwatch">2:00:00</div>
+          <div class="big-stopwatch-label">Time Remaining</div>
+        </div>
+
+        <div class="instructions-box">
+          <strong>Instructions:</strong>
+          <ul>
+            <li>Download the input files and question paper from the link below.</li>
+            <li>Complete the task using your usual tools.</li>
+            <li>Submit your completed work via the method your recruiter specified (email / WeTransfer / etc.) — <strong>not</strong> through this page.</li>
+            <li>Make sure your submission is sent before the timer reaches zero.</li>
+          </ul>
+        </div>
+
+        <div class="drive-link-box">
+          <p>Input files and question paper:</p>
+          <a href="#" id="drive-link" class="btn-drive-link" target="_blank" rel="noopener">
+            📁 Open Google Drive Folder
+          </a>
+        </div>
+
+        <button id="btn-submit-early" class="btn-submit-early" type="button">
+          I've Finished — End My Session Now
+        </button>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SECTION 3: CONFIRMATION
+       ────────────────────────────────────────────────────────── -->
+  <section id="confirmation-section" aria-label="Session Ended" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="text-align:center;">
+        <div class="confirm-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+        </div>
+        <h2 class="confirm-title">Your Session Has Ended</h2>
+        <p class="confirm-sub" id="confirm-message">
+          Thank you for taking part in Round 3.<br/>
+          Please make sure you've sent your completed work as instructed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer style="text-align:center; padding:24px; color:var(--text-muted); font-size:13px;">
+  © Intrados Designs · Confidential Candidate Portal
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
