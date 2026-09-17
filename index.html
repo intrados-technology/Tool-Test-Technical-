@@ -41,7 +41,7 @@
         <ul style="margin:16px 0; padding-left:20px; line-height:1.8;">
           <li><strong>You have 2 hours 15 minutes once you click Begin.</strong> The timer cannot be paused, and the session ends automatically when time runs out.</li>
           <li><strong>No restrictions on tabs, windows, or software</strong> — feel free to use multiple monitors, switch applications, and use your usual tools freely.</li>
-          <li><strong>You must stay connected with us on a live video call for the entire session, with your webcam on at all times.</strong> Join using the link below before you begin.</li>
+          <li><strong>No webcam recording for this round.</strong></li>
           <li><strong>Input files and the question paper will be provided via a Google Drive link</strong> once you begin.</li>
           <li><strong>Submit your completed work by email to <span id="rules-submission-email">soumen.intrados@gmail.com</span></strong> — this page does not accept file uploads. Make sure you send your work before the 2-hour window closes.</li>
           <li><strong>You get one attempt only.</strong></li>
@@ -120,13 +120,6 @@
             <span class="field-error" id="err-discipline" role="alert" aria-live="polite"></span>
           </div>
 
-          <div id="meeting-link-box" class="drive-link-box" style="display:none;">
-            <p>Join our video call before you begin — keep your webcam on for the full session:</p>
-            <a href="#" id="meeting-link" class="btn-drive-link" target="_blank" rel="noopener">
-              🎥 Join Video Call
-            </a>
-          </div>
-
           <button id="btn-start" class="btn-start" type="button" disabled>
             <span>Begin Tool Test</span>
             <span aria-hidden="true">→</span>
@@ -148,19 +141,10 @@
         <div class="instructions-box">
           <strong>Instructions:</strong>
           <ul>
-            <li>Stay on the video call with your webcam on for the entire session.</li>
             <li>Download the input files and question paper from the folder link below.</li>
             <li>Complete the task using your usual tools.</li>
             <li>Submit your completed work by email to <strong id="submission-email">soumen.intrados@gmail.com</strong> — <strong>not</strong> through this page.</li>
-            <li>Make sure your submission is sent before the timer reaches zero.</li>
           </ul>
-        </div>
-
-        <div class="drive-link-box">
-          <p>Video call (keep your webcam on):</p>
-          <a href="#" id="meeting-link-inprogress" class="btn-drive-link" target="_blank" rel="noopener">
-            🎥 Rejoin Video Call
-          </a>
         </div>
 
         <div class="drive-link-box">

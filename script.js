@@ -24,11 +24,6 @@ const DRIVE_FOLDER_URLS = {
   MEP: "https://drive.google.com/drive/folders/1VwK1A47UYlAbmqcyvX-vVsPwoBrvWUep?usp=drive_link"
 };
 
-// ⚠️ REQUIRED SETUP: replace with the real video call link (Zoom /
-// Google Meet / Teams) candidates must join and keep their webcam on
-// for the full session.
-const MEETING_LINK = "PASTE_VIDEO_CALL_LINK_HERE";
-
 const TEST_DURATION_SECONDS = 2 * 60 * 60 + 15 * 60; // 2 hours 15 minutes
 
 const DOM = {
@@ -48,9 +43,6 @@ const DOM = {
   summaryDomain:     document.getElementById('summary-domain'),
   summaryExperience: document.getElementById('summary-experience'),
   disciplineGroup:   document.getElementById('discipline-group'),
-  meetingLinkBox:    document.getElementById('meeting-link-box'),
-  meetingLink:       document.getElementById('meeting-link'),
-  meetingLinkInProgress: document.getElementById('meeting-link-inprogress'),
   btnStart:    document.getElementById('btn-start'),
 
   neModal:      document.getElementById('not-eligible-modal'),
@@ -101,7 +93,6 @@ function clearVerifiedCandidate() {
   state.candidate = {};
   DOM.candSummary.style.display = 'none';
   DOM.disciplineGroup.style.display = 'none';
-  DOM.meetingLinkBox.style.display = 'none';
   DOM.btnStart.disabled = true;
   DOM.formRefId.classList.remove('success');
 }
@@ -259,8 +250,6 @@ function verifyReferenceId() {
         DOM.summaryExperience.textContent = state.candidate.track || '—';
         DOM.candSummary.style.display = 'block';
         DOM.disciplineGroup.style.display = 'block';
-        DOM.meetingLink.href = MEETING_LINK;
-        DOM.meetingLinkBox.style.display = 'block';
         DOM.formRefId.classList.add('success');
         DOM.btnStart.disabled = false;
         finish(null);
@@ -319,7 +308,6 @@ DOM.btnStart.addEventListener('click', function() {
   DOM_discipline.classList.remove('error');
 
   DOM.driveLink.href = DRIVE_FOLDER_URLS[discipline];
-  DOM.meetingLinkInProgress.href = MEETING_LINK;
   state.candidate.discipline = discipline;
   localStorage.setItem('ids_tooltest_discipline', discipline);
   localStorage.setItem('ids_tooltest_refid', state.candidate.refId);
@@ -390,7 +378,6 @@ function startCountdown() {
       }
 
       DOM.driveLink.href = DRIVE_FOLDER_URLS[savedDiscipline] || DRIVE_FOLDER_URLS.ACS;
-      DOM.meetingLinkInProgress.href = MEETING_LINK;
       state.candidate.discipline = savedDiscipline || 'ACS';
       DOM.regSection.style.display = 'none';
       DOM.assSection.style.display = 'block';
@@ -438,7 +425,7 @@ function finaliseSubmission(status) {
     })
   }).catch(function(err) { console.warn('[IDS] Tool Test submission error:', err); });
 
-  const subjectLine = 'Technical_' + state.candidate.track + '_Tool Test_' + state.candidate.name;
+  const subjectLine = 'Submission of Tool Test (' + state.candidate.name + ')';
   document.getElementById('confirm-subject').textContent = subjectLine;
 
   const zipName = [
