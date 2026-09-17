@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
-  <title>Tool Test – Freshers – Intrados Designs</title>
+  <title>Tool Test – Round 3 – Intrados Designs</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -39,11 +39,11 @@
       <h3 class="modal-title" style="text-align:center;">Before You Begin — Round 3: Tool Test</h3>
       <div class="modal-body">
         <ul style="margin:16px 0; padding-left:20px; line-height:1.8;">
-          <li><strong>You have 2 hours once you click Begin.</strong> The timer cannot be paused, and the session ends automatically when time runs out.</li>
+          <li><strong>You have 2 hours 15 minutes once you click Begin.</strong> The timer cannot be paused, and the session ends automatically when time runs out.</li>
           <li><strong>No restrictions on tabs, windows, or software</strong> — feel free to use multiple monitors, switch applications, and use your usual tools freely.</li>
           <li><strong>No webcam recording for this round.</strong></li>
           <li><strong>Input files and the question paper will be provided via a Google Drive link</strong> once you begin.</li>
-          <li><strong>Submit your completed work separately</strong> (email / WeTransfer / as instructed) — this page does not accept file uploads. Make sure you send your work before the 2-hour window closes.</li>
+          <li><strong>Submit your completed work by email to <span id="rules-submission-email">soumen.intrados@gmail.com</span></strong> — this page does not accept file uploads. Make sure you send your work before the 2-hour window closes.</li>
           <li><strong>You get one attempt only.</strong></li>
         </ul>
         <p style="margin:0;">By clicking below, you confirm you understand and agree to these conditions.</p>
@@ -75,11 +75,11 @@
     <div class="card">
       <div class="card-header">
         <div class="reg-intro">
-          <span class="section-badge">🛠 Round 3: Tool Test — Freshers</span>
+          <span class="section-badge">🛠 Round 3: Tool Test</span>
           <h1 class="reg-title">Verify Your Reference ID</h1>
           <p class="reg-sub">Enter the Reference ID from your approved application to begin.</p>
           <div class="assessment-meta">
-            <span class="meta-pill"><span class="icon">⏱</span> 2 Hours</span>
+            <span class="meta-pill"><span class="icon">⏱</span> 2h 15m</span>
             <span class="meta-pill"><span class="icon">📁</span> File-Based Task</span>
             <span class="meta-pill"><span class="icon">🔓</span> No Restrictions</span>
           </div>
@@ -104,7 +104,20 @@
               <span>Candidate Verified</span>
             </div>
             <div class="summary-row"><span class="summary-label">Name</span><span class="summary-value" id="summary-name"></span></div>
+            <div class="summary-row"><span class="summary-label">Position</span><span class="summary-value" id="summary-position"></span></div>
+            <div class="summary-row"><span class="summary-label">Domain</span><span class="summary-value" id="summary-domain"></span></div>
+            <div class="summary-row"><span class="summary-label">Experience Level</span><span class="summary-value" id="summary-experience"></span></div>
             <p class="summary-note">Not you? Double-check the Reference ID above and verify again.</p>
+          </div>
+
+          <div id="discipline-group" class="form-group" style="display:none;">
+            <label class="form-label" for="field-discipline">Discipline <span class="req" aria-hidden="true">*</span></label>
+            <select id="field-discipline" class="form-input">
+              <option value="" disabled selected>Select one</option>
+              <option value="ACS">ACS</option>
+              <option value="MEP">MEP</option>
+            </select>
+            <span class="field-error" id="err-discipline" role="alert" aria-live="polite"></span>
           </div>
 
           <button id="btn-start" class="btn-start" type="button" disabled>
@@ -125,17 +138,12 @@
     <div class="card">
       <div class="card-body">
 
-        <div class="big-stopwatch-wrap">
-          <div class="big-stopwatch" id="big-stopwatch">2:00:00</div>
-          <div class="big-stopwatch-label">Time Remaining</div>
-        </div>
-
         <div class="instructions-box">
           <strong>Instructions:</strong>
           <ul>
-            <li>Download the input files and question paper from the link below.</li>
+            <li>Download the input files and question paper from the folder link below.</li>
             <li>Complete the task using your usual tools.</li>
-            <li>Submit your completed work via the method your recruiter specified (email / WeTransfer / etc.) — <strong>not</strong> through this page.</li>
+            <li>Submit your completed work by email to <strong id="submission-email">soumen.intrados@gmail.com</strong> — <strong>not</strong> through this page.</li>
             <li>Make sure your submission is sent before the timer reaches zero.</li>
           </ul>
         </div>
@@ -145,6 +153,11 @@
           <a href="#" id="drive-link" class="btn-drive-link" target="_blank" rel="noopener">
             📁 Open Google Drive Folder
           </a>
+        </div>
+
+        <div class="big-stopwatch-wrap">
+          <div class="big-stopwatch" id="big-stopwatch">2:00:00</div>
+          <div class="big-stopwatch-label">Time Remaining</div>
         </div>
 
         <button id="btn-submit-early" class="btn-submit-early" type="button">
@@ -170,8 +183,23 @@
         <h2 class="confirm-title">Your Session Has Ended</h2>
         <p class="confirm-sub" id="confirm-message">
           Thank you for taking part in Round 3.<br/>
-          Please make sure you've sent your completed work as instructed.
+          Please send your completed work using the details below.
         </p>
+
+        <div class="submission-info-box">
+          <p class="submission-info-label">Send your completed work to:</p>
+          <div class="copy-row">
+            <span id="confirm-email">soumen.intrados@gmail.com</span>
+            <button id="btn-copy-email" class="btn-copy" type="button">Copy</button>
+          </div>
+
+          <p class="submission-info-label" style="margin-top:18px;">Suggested subject line:</p>
+          <div class="copy-row">
+            <span id="confirm-subject"></span>
+            <button id="btn-copy-subject" class="btn-copy" type="button">Copy</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>

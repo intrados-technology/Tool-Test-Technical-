@@ -472,6 +472,54 @@ h1,h2,h3 { font-family: 'Playfair Display', serif; letter-spacing: -0.02em; }
 }
 .btn-submit-early:hover { opacity: 0.9; }
 
+/* Submission email + subject line on the confirmation screen */
+.submission-info-box {
+  background: var(--surface-3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-top: 24px;
+  text-align: left;
+}
+.submission-info-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.copy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+.copy-row span {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+.btn-copy {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-copy:hover { background: var(--primary-dark); }
+.btn-copy.copied { background: var(--success); }
+
 .btn-start:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(108,63,197,0.4);

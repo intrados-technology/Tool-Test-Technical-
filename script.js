@@ -1,5 +1,5 @@
 /* ============================================================
-   INTRADOS DESIGNS — Round 3: Tool Test (Freshers)
+   INTRADOS DESIGNS — Round 3: Tool Test (Unified — Freshers & Experienced)
    script.js
    ============================================================ */
 
@@ -11,14 +11,20 @@ const GENERAL_SHEET_TAB      = "General Assessment";
 const PROFESSIONAL_SHEET_TAB = "Professional Assessment";
 const TOOL_TEST_SHEET_TAB    = "Tool Test";
 
-const PORTAL_TRACK     = "Fresher"; // 'Experienced' in the sibling portal
+// This portal serves BOTH Fresher and Experienced Technical candidates
+// (no separate track-specific page) — Experience Level is shown for
+// information only, not used to gate access.
 const NOT_ELIGIBLE_MSG = "You are not eligible for this test.";
 
-// ⚠️ REQUIRED SETUP: replace with the real Drive folder link for
-// Freshers' input files and question paper.
-const DRIVE_FOLDER_URL = "PASTE_FRESHERS_TOOL_TEST_DRIVE_LINK_HERE";
+// Discipline-specific Drive folders — same for both Fresher and
+// Experienced tracks. Candidate picks their Discipline on the
+// verification screen, which determines which link they get.
+const DRIVE_FOLDER_URLS = {
+  ACS: "https://drive.google.com/drive/folders/1Zi11oBeYR_kXE8ss86t2QzqIHw9a91qk?usp=drive_link",
+  MEP: "https://drive.google.com/drive/folders/1VwK1A47UYlAbmqcyvX-vVsPwoBrvWUep?usp=drive_link"
+};
 
-const TEST_DURATION_SECONDS = 2 * 60 * 60; // 2 hours
+const TEST_DURATION_SECONDS = 2 * 60 * 60 + 15 * 60; // 2 hours 15 minutes
 
 const DOM = {
   regSection:  document.getElementById('registration-section'),
@@ -32,7 +38,11 @@ const DOM = {
   errRefId:    document.getElementById('err-refid'),
   btnVerify:   document.getElementById('btn-verify'),
   candSummary: document.getElementById('candidate-summary'),
-  summaryName: document.getElementById('summary-name'),
+  summaryName:       document.getElementById('summary-name'),
+  summaryPosition:   document.getElementById('summary-position'),
+  summaryDomain:     document.getElementById('summary-domain'),
+  summaryExperience: document.getElementById('summary-experience'),
+  disciplineGroup:   document.getElementById('discipline-group'),
   btnStart:    document.getElementById('btn-start'),
 
   neModal:      document.getElementById('not-eligible-modal'),
@@ -82,6 +92,7 @@ function setRefIdError(msg) {
 function clearVerifiedCandidate() {
   state.candidate = {};
   DOM.candSummary.style.display = 'none';
+  DOM.disciplineGroup.style.display = 'none';
   DOM.btnStart.disabled = true;
   DOM.formRefId.classList.remove('success');
 }
@@ -190,22 +201,26 @@ function verifyReferenceId() {
   function checkGeneralAssessment() {
     gvizFetch(
       GENERAL_SHEET_ID, GENERAL_SHEET_TAB,
-      "select B,C,K,M,N where B = '" + safeRefId + "'",
+      "select B,C,F,K,M,N where B = '" + safeRefId + "'",
       function(gaRows) {
         if (gaRows.length === 0) { finish(NOT_ELIGIBLE_MSG); return; }
         const cells = gaRows[0].c;
         const name           = cells[1] && cells[1].v ? String(cells[1].v).trim() : '';
-        const recommendation = cells[2] && cells[2].v ? String(cells[2].v).trim().toLowerCase() : '';
-        const track           = cells[3] && cells[3].v ? String(cells[3].v).trim().toLowerCase() : '';
-        const domain          = cells[4] && cells[4].v ? String(cells[4].v).trim().toLowerCase() : '';
+        const position        = cells[2] && cells[2].v ? String(cells[2].v).trim() : '';
+        const recommendation = cells[3] && cells[3].v ? String(cells[3].v).trim().toLowerCase() : '';
+        const track           = cells[4] && cells[4].v ? String(cells[4].v).trim() : '';
+        const domain          = cells[5] && cells[5].v ? String(cells[5].v).trim() : '';
 
         const eligible = ["borderline","hire","strong hire","exceptional","rejection overridden"];
-        if (!name || eligible.indexOf(recommendation) === -1 || domain !== 'technical' || track !== PORTAL_TRACK.toLowerCase()) {
+        if (!name || eligible.indexOf(recommendation) === -1 || domain.toLowerCase() !== 'technical') {
           finish(NOT_ELIGIBLE_MSG);
           return;
         }
 
-        state.candidate.name = name;
+        state.candidate.name     = name;
+        state.candidate.position = position;
+        state.candidate.domain   = domain;
+        state.candidate.track    = track;
         checkProfessionalAssessment();
       },
       function(errMsg) { finish(errMsg); }
@@ -229,8 +244,12 @@ function verifyReferenceId() {
         }
 
         state.candidate.refId = refId;
-        DOM.summaryName.textContent   = state.candidate.name;
+        DOM.summaryName.textContent       = state.candidate.name;
+        DOM.summaryPosition.textContent   = state.candidate.position || '—';
+        DOM.summaryDomain.textContent     = state.candidate.domain || '—';
+        DOM.summaryExperience.textContent = state.candidate.track || '—';
         DOM.candSummary.style.display = 'block';
+        DOM.disciplineGroup.style.display = 'block';
         DOM.formRefId.classList.add('success');
         DOM.btnStart.disabled = false;
         finish(null);
@@ -272,10 +291,25 @@ let autoVerifyFrozen = false;
 })();
 
 // ── Begin Tool Test ───────────────────────────────────────────────
+const DOM_discipline = document.getElementById('field-discipline');
+const DOM_disciplineErr = document.getElementById('err-discipline');
+
 DOM.btnStart.addEventListener('click', function() {
   if (!state.candidate || !state.candidate.name) return;
 
-  DOM.driveLink.href = DRIVE_FOLDER_URL;
+  const discipline = DOM_discipline.value;
+  if (!discipline) {
+    DOM_disciplineErr.textContent = 'Please select your Discipline.';
+    DOM_disciplineErr.classList.add('show');
+    DOM_discipline.classList.add('error');
+    return;
+  }
+  DOM_disciplineErr.classList.remove('show');
+  DOM_discipline.classList.remove('error');
+
+  DOM.driveLink.href = DRIVE_FOLDER_URLS[discipline];
+  localStorage.setItem('ids_tooltest_discipline', discipline);
+
   DOM.regSection.style.display = 'none';
   DOM.assSection.style.display = 'block';
 
@@ -306,7 +340,7 @@ function startCountdown() {
 
     if (remaining <= 0) {
       clearInterval(state.timerRef);
-      finaliseSubmission('Auto-Submitted after 2 hours');
+      finaliseSubmission('Auto-Submitted after 2h 15m');
     }
   }
 
@@ -318,13 +352,14 @@ function startCountdown() {
 // resume it automatically rather than losing progress.
 (function resumeIfInProgress() {
   const savedStart = localStorage.getItem('ids_tooltest_start');
+  const savedDiscipline = localStorage.getItem('ids_tooltest_discipline');
   if (savedStart && !state.submitted) {
     // Wait for verification to complete before resuming, since we
     // still need state.candidate populated for submission later.
     const checkReady = setInterval(function() {
       if (state.candidate && state.candidate.name) {
         clearInterval(checkReady);
-        DOM.driveLink.href = DRIVE_FOLDER_URL;
+        DOM.driveLink.href = DRIVE_FOLDER_URLS[savedDiscipline] || DRIVE_FOLDER_URLS.ACS;
         DOM.regSection.style.display = 'none';
         DOM.assSection.style.display = 'block';
         startCountdown();
@@ -350,6 +385,7 @@ function finaliseSubmission(status) {
     : '';
 
   localStorage.removeItem('ids_tooltest_start');
+  localStorage.removeItem('ids_tooltest_discipline');
 
   fetch(SCRIPT_URL, {
     method: 'POST', mode: 'no-cors',
@@ -358,13 +394,42 @@ function finaliseSubmission(status) {
       sheetName:  'Tool Test',
       referenceId: state.candidate.refId,
       name:        state.candidate.name,
-      track:       PORTAL_TRACK,
+      track:       state.candidate.track,
       startTime:   startTimeStr,
       endTime:     endTime,
       status:      status
     })
   }).catch(function(err) { console.warn('[IDS] Tool Test submission error:', err); });
 
+  const subjectLine = 'Technical_' + state.candidate.track + '_Tool Test_' + state.candidate.name;
+  document.getElementById('confirm-subject').textContent = subjectLine;
+
   DOM.assSection.style.display  = 'none';
   DOM.confSection.style.display = 'block';
 }
+
+// ── Copy-to-clipboard buttons on the confirmation screen ─────────
+function wireCopyButton(btnId, sourceId) {
+  const btn = document.getElementById(btnId);
+  const source = document.getElementById(sourceId);
+  btn.addEventListener('click', function() {
+    navigator.clipboard.writeText(source.textContent).then(function() {
+      const original = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(function() {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1800);
+    }).catch(function() {
+      // Clipboard API unavailable/blocked — fall back to manual select
+      const range = document.createRange();
+      range.selectNodeContents(source);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+  });
+}
+wireCopyButton('btn-copy-email', 'confirm-email');
+wireCopyButton('btn-copy-subject', 'confirm-subject');
