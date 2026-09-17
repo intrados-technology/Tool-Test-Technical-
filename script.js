@@ -24,6 +24,11 @@ const DRIVE_FOLDER_URLS = {
   MEP: "https://drive.google.com/drive/folders/1VwK1A47UYlAbmqcyvX-vVsPwoBrvWUep?usp=drive_link"
 };
 
+// ⚠️ REQUIRED SETUP: replace with the real video call link (Zoom /
+// Google Meet / Teams) candidates must join and keep their webcam on
+// for the full session.
+const MEETING_LINK = "PASTE_VIDEO_CALL_LINK_HERE";
+
 const TEST_DURATION_SECONDS = 2 * 60 * 60 + 15 * 60; // 2 hours 15 minutes
 
 const DOM = {
@@ -43,6 +48,9 @@ const DOM = {
   summaryDomain:     document.getElementById('summary-domain'),
   summaryExperience: document.getElementById('summary-experience'),
   disciplineGroup:   document.getElementById('discipline-group'),
+  meetingLinkBox:    document.getElementById('meeting-link-box'),
+  meetingLink:       document.getElementById('meeting-link'),
+  meetingLinkInProgress: document.getElementById('meeting-link-inprogress'),
   btnStart:    document.getElementById('btn-start'),
 
   neModal:      document.getElementById('not-eligible-modal'),
@@ -93,6 +101,7 @@ function clearVerifiedCandidate() {
   state.candidate = {};
   DOM.candSummary.style.display = 'none';
   DOM.disciplineGroup.style.display = 'none';
+  DOM.meetingLinkBox.style.display = 'none';
   DOM.btnStart.disabled = true;
   DOM.formRefId.classList.remove('success');
 }
@@ -250,6 +259,8 @@ function verifyReferenceId() {
         DOM.summaryExperience.textContent = state.candidate.track || '—';
         DOM.candSummary.style.display = 'block';
         DOM.disciplineGroup.style.display = 'block';
+        DOM.meetingLink.href = MEETING_LINK;
+        DOM.meetingLinkBox.style.display = 'block';
         DOM.formRefId.classList.add('success');
         DOM.btnStart.disabled = false;
         finish(null);
@@ -308,6 +319,8 @@ DOM.btnStart.addEventListener('click', function() {
   DOM_discipline.classList.remove('error');
 
   DOM.driveLink.href = DRIVE_FOLDER_URLS[discipline];
+  DOM.meetingLinkInProgress.href = MEETING_LINK;
+  state.candidate.discipline = discipline;
   localStorage.setItem('ids_tooltest_discipline', discipline);
   localStorage.setItem('ids_tooltest_refid', state.candidate.refId);
 
@@ -377,6 +390,8 @@ function startCountdown() {
       }
 
       DOM.driveLink.href = DRIVE_FOLDER_URLS[savedDiscipline] || DRIVE_FOLDER_URLS.ACS;
+      DOM.meetingLinkInProgress.href = MEETING_LINK;
+      state.candidate.discipline = savedDiscipline || 'ACS';
       DOM.regSection.style.display = 'none';
       DOM.assSection.style.display = 'block';
       startCountdown();
@@ -395,7 +410,9 @@ function finaliseSubmission(status) {
   state.submitted = true;
   if (state.timerRef) clearInterval(state.timerRef);
 
-  const endTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  const endTimeDate = new Date();
+  const deadlineDate = new Date(endTimeDate.getTime() + 15 * 60 * 1000);
+  const endTime = endTimeDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   const startTimeStr = state.startTime
     ? new Date(state.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
     : '';
@@ -411,9 +428,12 @@ function finaliseSubmission(status) {
       sheetName:  'Tool Test',
       referenceId: state.candidate.refId,
       name:        state.candidate.name,
+      position:    state.candidate.position,
       track:       state.candidate.track,
+      discipline:  state.candidate.discipline,
       startTime:   startTimeStr,
       endTime:     endTime,
+      submissionTime: endTime,
       status:      status
     })
   }).catch(function(err) { console.warn('[IDS] Tool Test submission error:', err); });
@@ -421,8 +441,45 @@ function finaliseSubmission(status) {
   const subjectLine = 'Technical_' + state.candidate.track + '_Tool Test_' + state.candidate.name;
   document.getElementById('confirm-subject').textContent = subjectLine;
 
+  const zipName = [
+    state.candidate.name,
+    state.candidate.position || 'NA',
+    state.candidate.discipline || 'NA',
+    state.candidate.track || 'NA'
+  ].join('_');
+  document.getElementById('confirm-zipname').textContent = zipName;
+
+  document.getElementById('confirm-deadline').textContent =
+    deadlineDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+
   DOM.assSection.style.display  = 'none';
   DOM.confSection.style.display = 'block';
+
+  startSubmissionCountdown(deadlineDate);
+}
+
+// ── 15-minute submission countdown (shown on the confirmation screen) ──
+function startSubmissionCountdown(deadlineDate) {
+  const el = document.getElementById('submission-stopwatch');
+  let submissionTimerRef;
+
+  function tick() {
+    const remaining = Math.max(0, Math.floor((deadlineDate.getTime() - Date.now()) / 1000));
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    el.textContent = m + ':' + String(s).padStart(2, '0');
+
+    el.classList.toggle('warning', remaining <= 300 && remaining > 60);
+    el.classList.toggle('danger', remaining <= 60);
+
+    if (remaining <= 0) {
+      clearInterval(submissionTimerRef);
+      el.textContent = "Time's Up";
+    }
+  }
+
+  tick();
+  submissionTimerRef = setInterval(tick, 1000);
 }
 
 // ── Copy-to-clipboard buttons on the confirmation screen ─────────
@@ -450,3 +507,4 @@ function wireCopyButton(btnId, sourceId) {
 }
 wireCopyButton('btn-copy-email', 'confirm-email');
 wireCopyButton('btn-copy-subject', 'confirm-subject');
+wireCopyButton('btn-copy-zipname', 'confirm-zipname');
