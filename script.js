@@ -309,6 +309,7 @@ DOM.btnStart.addEventListener('click', function() {
 
   DOM.driveLink.href = DRIVE_FOLDER_URLS[discipline];
   localStorage.setItem('ids_tooltest_discipline', discipline);
+  localStorage.setItem('ids_tooltest_refid', state.candidate.refId);
 
   DOM.regSection.style.display = 'none';
   DOM.assSection.style.display = 'block';
@@ -349,23 +350,38 @@ function startCountdown() {
 }
 
 // If a session was already in progress (page refreshed mid-test),
-// resume it automatically rather than losing progress.
+// resume it automatically — but ONLY if it belongs to the SAME
+// candidate currently being verified. A stray localStorage flag left
+// over from an earlier/different candidate's session on this same
+// browser must never hijack a new candidate's verification.
 (function resumeIfInProgress() {
   const savedStart = localStorage.getItem('ids_tooltest_start');
   const savedDiscipline = localStorage.getItem('ids_tooltest_discipline');
-  if (savedStart && !state.submitted) {
-    // Wait for verification to complete before resuming, since we
-    // still need state.candidate populated for submission later.
-    const checkReady = setInterval(function() {
-      if (state.candidate && state.candidate.name) {
-        clearInterval(checkReady);
-        DOM.driveLink.href = DRIVE_FOLDER_URLS[savedDiscipline] || DRIVE_FOLDER_URLS.ACS;
-        DOM.regSection.style.display = 'none';
-        DOM.assSection.style.display = 'block';
-        startCountdown();
+  const savedRefId = localStorage.getItem('ids_tooltest_refid');
+  if (!savedStart) return;
+
+  let attempts = 0;
+  const checkReady = setInterval(function() {
+    attempts++;
+    if (state.submitted || attempts > 200) { clearInterval(checkReady); return; } // ~60s cap
+    if (state.candidate && state.candidate.name && state.candidate.refId) {
+      clearInterval(checkReady);
+
+      if (state.candidate.refId !== savedRefId) {
+        // Stale session belonging to a different candidate — discard
+        // it rather than resuming into someone else's test.
+        localStorage.removeItem('ids_tooltest_start');
+        localStorage.removeItem('ids_tooltest_discipline');
+        localStorage.removeItem('ids_tooltest_refid');
+        return;
       }
-    }, 300);
-  }
+
+      DOM.driveLink.href = DRIVE_FOLDER_URLS[savedDiscipline] || DRIVE_FOLDER_URLS.ACS;
+      DOM.regSection.style.display = 'none';
+      DOM.assSection.style.display = 'block';
+      startCountdown();
+    }
+  }, 300);
 })();
 
 DOM.btnSubmitEarly.addEventListener('click', function() {
@@ -386,6 +402,7 @@ function finaliseSubmission(status) {
 
   localStorage.removeItem('ids_tooltest_start');
   localStorage.removeItem('ids_tooltest_discipline');
+  localStorage.removeItem('ids_tooltest_refid');
 
   fetch(SCRIPT_URL, {
     method: 'POST', mode: 'no-cors',
